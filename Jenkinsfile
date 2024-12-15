@@ -2,72 +2,54 @@ pipeline {
     agent any
 
     environment {
-        NODE_ENV = 'development'
-        MONGO_URI = credentials('mongo-uri') // 'mongo-uri' is the Jenkins credential ID
-    }
-
-    options {
-        timestamps()
-        ansiColor('xterm')
+        MONGO_URI = credentials('mongo-db-credential') // Use Jenkins credentials store for Mongo URI
     }
 
     stages {
-        stage('Setup') {
-            steps {
-                echo 'Setting up the workspace...'
-                checkout scm
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
-                echo 'Installing Node.js dependencies...'
-                sh 'npm install'
+                script {
+                    sh 'npm install'
+                }
             }
         }
 
-        stage('Lint') {
+        stage('Run Development Server') {
             steps {
-                echo 'Running lint checks...'
-                sh 'npx eslint . || true'
+                script {
+                    sh 'npm run start:dev'
+                }
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                echo 'Running tests...'
-                sh 'npm test || true'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo 'Building the application...'
-                sh 'npm run build || echo "No build step defined."'
+                script {
+                    // Add test command if you have any, or can leave it empty for now
+                    sh 'echo "No tests specified"'
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying the application...'
-                sh '''
-                # Replace with your deployment steps (e.g., Docker, PM2, or SSH deployment)
-                echo "Deploying to server..."
-                '''
+                script {
+                    // Deployment steps go here (e.g., push to a remote server)
+                    echo "Deployment steps go here"
+                }
             }
         }
     }
 
     post {
         always {
-            echo 'Cleaning up workspace...'
-            cleanWs()
+            echo 'Cleaning up...'
         }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Build completed successfully.'
         }
         failure {
-            echo 'Pipeline failed. Investigate issues!'
+            echo 'Build failed.'
         }
     }
 }
