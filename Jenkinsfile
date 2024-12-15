@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        NODE_ENV = 'development'
+        MONGO_URI = credentials('MONGO_URI') // Replace with your Jenkins credential ID
+    }
+
     options {
         timestamps()
         ansiColor('xterm')
@@ -24,14 +29,14 @@ pipeline {
         stage('Lint') {
             steps {
                 echo 'Running lint checks...'
-                sh 'npx eslint . || true' // Adjust ESLint command as needed
+                sh 'npx eslint . || true'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'npm test || true' // Adjust as per your test setup
+                sh 'npm test || true'
             }
         }
 
@@ -42,12 +47,12 @@ pipeline {
             }
         }
 
-        stage('Run Application') {
+        stage('Deploy') {
             steps {
-                echo 'Starting the application...'
+                echo 'Deploying the application...'
                 sh '''
-                # Ensure .env file is loaded by dotenv during runtime
-                node ./src/index.mjs
+                # Replace with your deployment steps (e.g., Docker, PM2, or SSH deployment)
+                echo "Deploying to server..."
                 '''
             }
         }
