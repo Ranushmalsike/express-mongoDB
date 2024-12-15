@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MONGO_URI = credentials('mongo_uri') // Use the correct credential ID here
+        MONGO_URI = "MONGO_URI=mongodb://admin:admin123@localhost:27017/yourDatabaseName?authSource=admin"
     }
 
     stages {
