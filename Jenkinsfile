@@ -2,13 +2,24 @@ pipeline {
     agent any
 
     environment {
-        MONGO_URI = "MONGO_URI=mongodb://admin:admin123@localhost:27017/yourDatabaseName?authSource=admin"
+        MONGO_URI = "mongodb://admin:admin123@localhost:27017/yourDatabaseName?authSource=admin"
     }
 
     stages {
+        stage('Check Node and npm') {
+            steps {
+                script {
+                    echo "Checking Node and npm versions"
+                    sh 'node -v'
+                    sh 'npm -v'
+                }
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 script {
+                    echo "Installing dependencies"
                     sh 'npm install'
                 }
             }
@@ -17,12 +28,13 @@ pipeline {
         stage('Run Development Server') {
             steps {
                 script {
+                    echo "Running development server"
                     sh 'npm run start:dev'
                 }
             }
         }
 
-        // Other stages...
+        // Other stages can be added here as needed
     }
 
     post {
