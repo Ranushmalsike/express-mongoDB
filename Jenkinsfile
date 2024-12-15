@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MONGO_URI = credentials('mongo-db-credential') // Use Jenkins credentials store for Mongo URI
+        MONGO_URI = credentials('MongoDB') // Use Jenkins credentials store for Mongo URI
     }
 
     stages {
