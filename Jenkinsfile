@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         MONGO_URI = "mongodb://admin:admin123@localhost:27017/yourDatabaseName?authSource=admin"
-        PATH = "/usr/local/bin:$PATH"  // Ensure npm is available in the PATH
+        NODE_HOME = '/home/rrm/.nvm/versions/node/v20.18.0'
+        PATH = "${NODE_HOME}/bin:${env.PATH}"
     }
 
     stages {
