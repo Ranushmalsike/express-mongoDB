@@ -6,10 +6,6 @@ pipeline {
         PATH = "/usr/local/bin:$PATH"  // Ensure npm is available in the PATH
     }
 
-    tools {
-        nodejs 'NodeJS 14'  // Use NodeJS plugin if installed in Jenkins (configure in Jenkins' global tool config)
-    }
-
     stages {
         stage('Checkout SCM') {
             steps {
