@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_ENV = 'development'
-        MONGO_URI = credentials('MONGO_URI') // Replace with your Jenkins credential ID
+        MONGO_URI = credentials('mongo-uri') // 'mongo-uri' is the Jenkins credential ID
     }
 
     options {
