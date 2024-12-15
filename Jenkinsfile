@@ -1,40 +1,68 @@
 pipeline {
     agent any
 
-    environment {
-        NODE_ENV = 'production' // Set Node.js environment
-        MONGO_URI = credentials('mongo-uri') // Secure MongoDB URI
+    options {
+        timestamps()
+        ansiColor('xterm')
     }
 
     stages {
+        stage('Setup') {
+            steps {
+                echo 'Setting up the workspace...'
+                checkout scm
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                // Install dependencies
+                echo 'Installing Node.js dependencies...'
                 sh 'npm install'
             }
         }
 
-        stage('Lint Code') {
+        stage('Lint') {
             steps {
-                // Optional: Run ESLint to enforce code standards
-                sh 'npm run lint || echo "Linting skipped as no script defined"'
+                echo 'Running lint checks...'
+                sh 'npx eslint . || true' // Adjust ESLint command as needed
             }
         }
 
-        stage('Run Tests') {
+        stage('Test') {
             steps {
-                // Placeholder for tests
-                sh 'npm test || echo "No tests defined yet"'
+                echo 'Running tests...'
+                sh 'npm test || true' // Adjust as per your test setup
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                sh 'npm run build || echo "No build step defined."'
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                echo 'Starting the application...'
+                sh '''
+                # Ensure .env file is loaded by dotenv during runtime
+                node ./src/index.mjs
+                '''
             }
         }
     }
 
     post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
+        }
         success {
-            echo 'Pipeline executed successfully!'
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline failed. Investigate issues!'
         }
     }
 }
