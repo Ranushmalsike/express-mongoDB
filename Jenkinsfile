@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MONGO_URI = credentials('MongoDB') // Use Jenkins credentials store for Mongo URI
+        MONGO_URI = credentials('mongo_uri') // Use the correct credential ID here
     }
 
     stages {
@@ -22,23 +22,7 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                script {
-                    // Add test command if you have any, or can leave it empty for now
-                    sh 'echo "No tests specified"'
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    // Deployment steps go here (e.g., push to a remote server)
-                    echo "Deployment steps go here"
-                }
-            }
-        }
+        // Other stages...
     }
 
     post {
