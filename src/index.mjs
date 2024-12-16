@@ -1,7 +1,9 @@
 import express from "express";
 import connectDB from "./db/db.mjs";
 import dotenv from "dotenv";
-import user from "./schema/schema.mjs"; // Import the User model
+import user from "./schema/schema.mjs";
+import { uservalidation } from "./validator/validator.mjs"; // Import the User model
+import {body, checkSchema, validationResult} from "express-validator";
 
 dotenv.config({ path: './.env' });
 
@@ -17,7 +19,10 @@ app.get('/', (req, res) => {
   res.send('MongoDB connection established successfully!');
 });
 
-app.post('/user/api', async (req, res) => {
+app.post('/user/api', checkSchema(uservalidation), async (req, res) => {
+  const requestvalide = validationResult(req);
+  if(!requestvalide) return res.status(400).send({ error: requestvalide.array() });
+  
   const { body } = req;
 
   const newObjUser = new user(body);
