@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import user from "./schema/schema.mjs";
 import { uservalidation, validateUserView } from "./validator/validator.mjs"; // Import the User model
 import { body, checkSchema, validationResult, matchedData} from "express-validator";
+import { setBcryptvalues } from "./Hashing /hash.mjs";
 
 dotenv.config({ path: './.env' });
 
@@ -24,11 +25,10 @@ app.post('/user/api', checkSchema(uservalidation), async (req, res) => {
   const requestvalide = validationResult(req);
   if(!requestvalide) return res.status(400).send({ error: requestvalide.array().message });
   
-  const { body } = req;
-
-  const newObjUser = new user(body);
-
   try {
+    const { body } = req;
+    body.password = setBcryptvalues(body.password);
+    const newObjUser = new user(body);
     const saveUser = await newObjUser.save();
     return res.status(200).json(saveUser);
   } catch (error) {

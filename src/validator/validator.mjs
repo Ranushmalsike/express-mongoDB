@@ -1,5 +1,6 @@
 import { check } from 'express-validator';
 import User from '../schema/schema.mjs'
+import { compareValues } from '../Hashing /hash.mjs';
 
 /**
  * when we add new data before check the through this validation
@@ -29,7 +30,7 @@ export const uservalidation = {
             },
             errorMessage: "Length must be 8 values",
         },
-        isString : true,
+        
     }
     //we can enter filed by filed validation login here 
 };
@@ -42,13 +43,18 @@ export const validateUserView = [
   check('name')
     .notEmpty()
     .withMessage("Name is required")
-    .custom(async (name) => {
+    .custom(async (name, password) => {
       // Check if the user exists in the database
       const existingUser = await User.findOne({ name });
       if (!existingUser) {
         throw new Error("Name does not exist in the database");
       }
-    }),
+        // Compare the provided password with the hashed password
+        const isMatch = compareValues(password, existingUser.password);
+        if (!isMatch) {
+        throw new Error("Invalid password");
+        }
+     }),
 
   check('password')
     .isLength({ min: 8 })
