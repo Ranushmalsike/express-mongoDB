@@ -37,26 +37,35 @@ export const uservalidation = {
 
 /**
  * come from user input data /user/api/view
+ * Middleware for validating user input
  */
-
 export const validateUserView = [
   check('name')
     .notEmpty()
     .withMessage("Name is required")
-    .custom(async (name, password) => {
-      // Check if the user exists in the database
+    .custom(async (name) => {
       const existingUser = await User.findOne({ name });
       if (!existingUser) {
         throw new Error("Name does not exist in the database");
       }
-        // Compare the provided password with the hashed password
-        const isMatch = compareValues(password, existingUser.password);
-        if (!isMatch) {
-        throw new Error("Invalid password");
-        }
-     }),
+    }),
 
   check('password')
+    .notEmpty()
+    .withMessage("Password is required")
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
+    .withMessage("Password must be at least 8 characters long")
+    .custom(async (password, { req }) => {
+      const { name } = req.body;
+      const user = await User.findOne({ name });
+      if (!user) {
+        throw new Error("Invalid credentials");
+      }
+
+      // Compare password using bcrypt
+      const isMatch = await compareValues(password, user.password);
+      if (!isMatch) {
+        throw new Error("Invalid password");
+      }
+    }),
 ];
