@@ -1,5 +1,9 @@
 import express from "express";
 import connectDB from "./db/db.mjs";
+import cookieParser from "cookie-parser"; 
+import session from "express-session";
+import mongoose from "mongoose";
+import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
 import user from "./schema/schema.mjs";
 import { uservalidation, validateUserView } from "./validator/validator.mjs"; // Import the User model
@@ -16,8 +20,33 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
+// session section
+app.use(cookieParser("holloWorld"));
+app.use(
+    session({
+        secret: "abc the dev",
+        saveUninitialized: false,
+        resave: false,
+        cookie:{
+            maxAge: 60000 * 60,
+        },
+        // think server sometime restart then occur the problem for session. then idea when server restarted need to create new session it difficult to
+        // - client. because provide solution for it. If server restarted no occur the problem by bellow section. no need to create new session and again.
+        //- first time save session in database. it's most important matter for client. and this for library is connect-mongo but as this have main library
+        // - there can be use mysql and redis and more different db or cache save the session. 
+        store: MongoStore.create({
+            client: mongoose.connection.getClient()
+        }),
+    })
+);
+
 app.get('/', (req, res) => {
-  res.send('Hello mongoDB');
+    console.log(req.session);
+    console.log(req.session.id);
+    // this line use for prevent the modify session id once time
+    req.session.visited = true;
+    
+   res.cookie('hello', "World", { maxAge: 100000, signed: true });
 });
 
 // Input values into database
@@ -49,7 +78,18 @@ app.post("/user/api/view", validateUserView, async (req, res) => {
 
   // Return success response
   const matchResult = matchedData(req);
+  req.session.user = matchResult;
   return res.status(200).send({ message: "Request successful", data: matchResult });
 });
+
+
+app.get('/api/auth/status', (req, res) => {
+    if (req.session.user) {
+        return res.status(200).json(req.session.user);
+    } else {
+        return res.status(401).json({ msg: "Not Authenticated" });
+    }
+});
+
 
 app.listen(PORT, () => console.log(`Server up on port ${PORT}`));

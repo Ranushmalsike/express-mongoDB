@@ -67,5 +67,7 @@ export const validateUserView = [
       if (!isMatch) {
         throw new Error("Invalid password");
       }
+    
     }),
 ];
+
